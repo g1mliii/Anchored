@@ -33,7 +33,7 @@
     "security:audit": "npm audit --package-lock-only --audit-level=high"
   },
   "devDependencies": {
-    "dompurify": "^3.3.3",
+    "dompurify": "^3.4.2",
     "supabase": "^2.84.5"
   },
   "overrides": {
