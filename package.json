@@ -34,7 +34,7 @@
   },
   "devDependencies": {
     "dompurify": "^3.3.3",
-    "supabase": "^2.84.5"
+    "supabase": "^2.106.0"
   },
   "overrides": {
     "axios@1.14.1": "1.14.0",
