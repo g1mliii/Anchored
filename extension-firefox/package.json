@@ -17,7 +17,7 @@
     "security:audit": "npm audit --package-lock-only --audit-level=high"
   },
   "devDependencies": {
-    "web-ext": "^10.1.0"
+    "web-ext": "^10.4.0"
   },
   "overrides": {
     "axios@1.14.1": "1.14.0",
