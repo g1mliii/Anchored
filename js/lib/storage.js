@@ -71,41 +71,17 @@ class WebStorage {
 
   // Clean up soft deleted notes that have been synced to cloud
   async cleanupSyncedDeletedNotes() {
-    if (!window.supabaseClient) {
+    if (!window.supabaseClient?.isAuthenticated?.()) {
       // Supabase client not available for cleanup
       return;
     }
 
     try {
-      // Starting cleanup of soft deleted notes
-      
-      // Get all notes marked for deletion that are older than 24 hours
-      const cutoffTime = new Date(Date.now() - 24 * 60 * 60 * 1000); // 24 hours ago
-      const cutoffISOString = cutoffTime.toISOString();
-
-      // Use direct database access to find and delete old soft-deleted notes
-      const deletedNotes = await window.supabaseClient._request(
-        `${window.supabaseClient.apiUrl}/notes?user_id=eq.${window.supabaseClient.currentUser?.id}&is_deleted=eq.true&deleted_at=lt.${cutoffISOString}`,
-        { auth: true }
-      );
-
-      if (deletedNotes && deletedNotes.length > 0) {
-        // Found old deleted notes to clean up
-        
-        // Permanently delete these notes from the database
-        for (const note of deletedNotes) {
-          await window.supabaseClient._request(
-            `${window.supabaseClient.apiUrl}/notes?id=eq.${note.id}`,
-            { method: 'DELETE', auth: true }
-          );
-        }
-
-        // Also remove from local cache
-        this.cleanupDeletedNotesFromCache(deletedNotes.map(n => n.id));
-        
-        // Cleaned up old deleted notes
-      } else {
-        // No old deleted notes found for cleanup
+      // Delegate to the API client so the dashboard and storage layer share
+      // one throttled, batched cleanup request.
+      const result = await window.supabaseClient.cleanupOldDeletedNotes();
+      if (result.noteIds?.length) {
+        this.cleanupDeletedNotesFromCache(result.noteIds);
       }
     } catch (error) {
       // Failed to cleanup soft deleted notes

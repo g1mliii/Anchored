@@ -1356,15 +1356,8 @@ class Auth {
       const user = this.supabaseClient.getCurrentUser();
 
       if (user) {
-        // Store session with extended expiration for persistent login
-        const sessionData = {
-          access_token: this.supabaseClient.accessToken,
-          refresh_token: this.supabaseClient.refreshToken,
-          user: user,
-          expires_at: Date.now() + (30 * 24 * 60 * 60 * 1000) // 30 days
-        };
-        
-        localStorage.setItem('supabase_session', JSON.stringify(sessionData));
+        // signInWithEmail already stored the complete Supabase session,
+        // including its real JWT expiry and refresh token.
         localStorage.setItem('remember_login', 'true');
         
         // Also update app state immediately
@@ -1420,15 +1413,8 @@ class Auth {
         const user = this.supabaseClient.getCurrentUser();
 
         if (user) {
-          // Store session with extended expiration for persistent login
-          const sessionData = {
-            access_token: this.supabaseClient.accessToken,
-            refresh_token: this.supabaseClient.refreshToken,
-            user: user,
-            expires_at: Date.now() + (30 * 24 * 60 * 60 * 1000) // 30 days
-          };
-          
-          localStorage.setItem('supabase_session', JSON.stringify(sessionData));
+          // signUpWithEmail already stored the complete Supabase session,
+          // including its real JWT expiry and refresh token.
           localStorage.setItem('remember_login', 'true');
           
           // Also update app state immediately

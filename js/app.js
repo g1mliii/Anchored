@@ -96,9 +96,10 @@ class App {
 
   // Set up periodic session refresh to keep users logged in
   setupSessionRefresh() {
-    // Always set up refresh for authenticated users (like other modern websites)
-    // Check every 6 hours for refresh needs
-    const refreshInterval = 6 * 60 * 60 * 1000; // 6 hours
+    // Check the local expiry often enough to refresh before a one-hour JWT expires.
+    // This does not make a network request until the token is close to expiry.
+    const refreshInterval = 5 * 60 * 1000; // 5 minutes
+    const refreshWindow = 10 * 60 * 1000; // 10 minutes
 
     setInterval(async () => {
       try {
@@ -107,9 +108,6 @@ class App {
           const session = JSON.parse(sessionData);
           const expiresAt = session.expires_at || 0;
           const now = Date.now();
-
-          // Refresh if session expires within 24 hours (like other websites)
-          const refreshWindow = 24 * 60 * 60 * 1000; // 24 hours
 
           if (expiresAt - now < refreshWindow) {
             await this.refreshAuthToken(session);
@@ -177,8 +175,9 @@ class App {
       const expiresAt = session.expires_at || 0;
       const now = Date.now();
 
-      // If token expires within 24 hours, refresh it (reasonable for long sessions)
-      if (expiresAt - now < 24 * 60 * 60 * 1000) {
+      // Refresh shortly before the access token expires. Persistent login is
+      // maintained by the refresh token, not by extending this timestamp.
+      if (expiresAt - now < 10 * 60 * 1000) {
         await this.refreshAuthToken(session);
       }
     } catch (e) {
@@ -356,6 +355,21 @@ class App {
     }
   }
 
+  // Decode the `exp` claim locally so old synthetic expiry timestamps cannot
+  // keep an expired access token looking valid.
+  getAccessTokenExpiresAt(accessToken) {
+    try {
+      const payload = accessToken?.split('.')[1];
+      if (!payload) return 0;
+      const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+      const decoded = atob(base64.padEnd(Math.ceil(base64.length / 4) * 4, '='));
+      const { exp } = JSON.parse(decoded);
+      return Number.isFinite(exp) ? exp * 1000 : 0;
+    } catch (_) {
+      return 0;
+    }
+  }
+
   // Emit auth state change event for centralized state management
   emitAuthStateChange() {
     const authData = {
@@ -386,12 +400,18 @@ class App {
         return null;
       }
 
-      const expiresAt = sessionData.expires_at || 0;
       const now = Date.now();
+      const tokenExpiresAt = this.getAccessTokenExpiresAt(sessionData.access_token);
+      const expiresAt = tokenExpiresAt || sessionData.expires_at || 0;
 
-      // More lenient expiry handling for long-lasting sessions
+      if (tokenExpiresAt && sessionData.expires_at !== tokenExpiresAt) {
+        sessionData.expires_at = tokenExpiresAt;
+        sessionData.expires_in = Math.max(0, Math.floor((tokenExpiresAt - now) / 1000));
+        localStorage.setItem('supabase_session', JSON.stringify(sessionData));
+      }
+
       const isMobile = this.isMobile();
-      const refreshWindow = isMobile ? 24 * 60 * 60 * 1000 : 12 * 60 * 60 * 1000; // 24 hours mobile, 12 hours desktop
+      const refreshWindow = 10 * 60 * 1000; // refresh shortly before JWT expiry
 
       // If token expires within refresh window, try to refresh it
       if (expiresAt - now < refreshWindow) {
@@ -464,25 +484,30 @@ class App {
       const data = await response.json();
 
       if (data.access_token) {
-        // Calculate expiry time - be more generous for mobile
+        // `expires_in` is the JWT lifetime in seconds. Keep it accurate so an
+        // expired access token is refreshed instead of being sent to Auth.
         const isMobile = this.isMobile();
         const expiresIn = data.expires_in || 3600;
-
-        // Use long-lasting sessions like other modern websites
-        const sessionDuration = isMobile ?
-          30 * 24 * 60 * 60 * 1000 : // 30 days for mobile (like other apps)
-          7 * 24 * 60 * 60 * 1000; // 7 days for desktop
 
         const newSession = {
           access_token: data.access_token,
           refresh_token: data.refresh_token || sessionData.refresh_token,
           user: data.user || sessionData.user,
-          expires_at: Date.now() + sessionDuration,
+          expires_at: Date.now() + (expiresIn * 1000),
+          expires_in: expiresIn,
+          created_at: sessionData.created_at || Date.now(),
           last_activity: Date.now(),
           is_mobile: isMobile
         };
 
         localStorage.setItem('supabase_session', JSON.stringify(newSession));
+
+        // Keep the shared API client in sync with the stored session. Without
+        // this, its next request would still send the token that was refreshed.
+        if (window.supabaseClient) {
+          window.supabaseClient.accessToken = newSession.access_token;
+          window.supabaseClient.currentUser = newSession.user;
+        }
 
         // Update current auth state
         this.isAuthenticated = true;
@@ -818,7 +843,7 @@ class App {
         if (sessionData.access_token && sessionData.user) {
           // Check if token is not expired
           const expiresAt = sessionData.expires_at || 0;
-          const now = Date.now() / 1000; // Convert to seconds
+          const now = Date.now();
 
           if (expiresAt > now) {
             return true; // Valid cached session

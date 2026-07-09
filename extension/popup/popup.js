@@ -4420,7 +4420,7 @@ class URLNotesApp {
       const requestBody = {
         content: content,
         style: 'concise',
-        generateTags: true,
+        generateTags: false,
         existingTags: [],
         context: {
           domain: domain,
@@ -4597,7 +4597,7 @@ class URLNotesApp {
       const requestBody = {
         content: content,
         style: 'concise',
-        generateTags: true,
+        generateTags: false,
         existingTags: [],
         context: {
           domain: domain,
@@ -4862,10 +4862,14 @@ class URLNotesApp {
 
 
       if (!serverData) {
-        try {
-          await window.supabaseClient.refreshSession();
-        } catch (refreshError) {
-          console.warn('Token refresh failed, continuing with current token:', refreshError);
+        const session = await window.supabaseClient.getSession();
+        const expiresAt = session?.expires_at || 0;
+        if (!expiresAt || expiresAt - Date.now() < 60 * 1000) {
+          try {
+            await window.supabaseClient.refreshSession();
+          } catch (refreshError) {
+            console.warn('Token refresh failed, continuing with current token:', refreshError);
+          }
         }
 
         const { data: usageData, error } = await window.supabaseClient.rpc('check_ai_usage', {
@@ -5318,10 +5322,9 @@ async function clearPremiumStatusCache() {
 
 // Note: clearAIUsageCache removed - now using local usage tracking instead
 
-document.addEventListener('DOMContentLoaded', async () => {
-  // Only clear corrupted caches, not all caches
-  // This prevents unnecessary RPC calls on every popup open
-  await clearPremiumStatusCache();
+document.addEventListener('DOMContentLoaded', () => {
+  // getPremiumStatus clears malformed cache entries itself. Keep valid one-hour
+  // caches so reopening the popup does not refresh Auth and call the AI RPC.
 
 
 

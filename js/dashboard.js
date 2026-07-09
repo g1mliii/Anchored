@@ -666,7 +666,7 @@ class Dashboard {
     cleanupBtn.textContent = 'Cleaning...';
 
     try {
-      const result = await window.api.cleanupOldDeletedNotes();
+      const result = await window.api.cleanupOldDeletedNotes({ force: true });
 
       if (result.cleaned > 0) {
         this.showNotification(`Successfully cleaned up ${result.cleaned} old deleted notes`, 'success');

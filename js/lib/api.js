@@ -9,6 +9,7 @@ class SupabaseClient {
     this.authUrl = `${this.supabaseUrl}/auth/v1`;
     this.currentUser = null;
     this.accessToken = null;
+    this._deletedNotesCleanupPromise = null;
   }
 
   // Web storage adapter - replaces chrome.storage.local
@@ -86,6 +87,21 @@ class SupabaseClient {
     return str.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
   }
 
+  // Read the JWT expiry rather than trusting a legacy localStorage timestamp.
+  // Older releases wrote a 7-30 day value here for a token that only lived an hour.
+  getAccessTokenExpiresAt(accessToken) {
+    try {
+      const payload = accessToken?.split('.')[1];
+      if (!payload) return 0;
+      const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+      const decoded = atob(base64.padEnd(Math.ceil(base64.length / 4) * 4, '='));
+      const { exp } = JSON.parse(decoded);
+      return Number.isFinite(exp) ? exp * 1000 : 0;
+    } catch (_) {
+      return 0;
+    }
+  }
+
   async generateCodeChallenge(verifier) {
     const hashed = await this.sha256(verifier);
     return this.base64UrlEncode(hashed);
@@ -110,11 +126,25 @@ class SupabaseClient {
       // Check for stored session
       const result = await this.getStorage(['supabase_session']);
       if (result.supabase_session) {
-        this.accessToken = result.supabase_session.access_token;
-        this.currentUser = result.supabase_session.user;
-        const expiresAt = result.supabase_session.expires_at || 0;
+        const storedSession = result.supabase_session;
+        this.accessToken = storedSession.access_token;
+        this.currentUser = storedSession.user;
         const now = Date.now();
+        const tokenExpiresAt = this.getAccessTokenExpiresAt(this.accessToken);
+        const expiresAt = tokenExpiresAt || storedSession.expires_at || 0;
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+        // Correct sessions saved by earlier releases before deciding whether to
+        // refresh. This makes the client recover instead of trusting a stale JWT.
+        if (tokenExpiresAt && storedSession.expires_at !== tokenExpiresAt) {
+          await this.setStorage({
+            supabase_session: {
+              ...storedSession,
+              expires_at: tokenExpiresAt,
+              expires_in: Math.max(0, Math.floor((tokenExpiresAt - now) / 1000))
+            }
+          });
+        }
 
         // More aggressive token validation for mobile to prevent JWT errors
         if (expiresAt && expiresAt < now) {
@@ -709,28 +739,8 @@ class SupabaseClient {
       await this.handleAuthSuccess(data);
       return true;
     } catch (error) {
-      // refreshSession error - for mobile, be more lenient
-      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-      if (isMobile && supabase_session) {
-        // On mobile, if refresh fails but session is recent, keep using it
-        const sessionAge = Date.now() - (supabase_session.created_at || 0);
-        const expiresAt = supabase_session.expires_at || 0;
-
-        // If session is less than 7 days old and not expired by more than 24 hours, keep it
-        if (sessionAge < 7 * 24 * 60 * 60 * 1000 && (Date.now() - expiresAt) < 24 * 60 * 60 * 1000) {
-          // Update activity and extend expiry
-          const extendedSession = {
-            ...supabase_session,
-            last_activity: Date.now(),
-            expires_at: Date.now() + 7 * 24 * 60 * 60 * 1000 // Extend by 7 days
-          };
-
-          await this.setStorage({ supabase_session: extendedSession });
-          return true;
-        }
-      }
-
+      // Never extend an expired access token locally. The caller can retry with
+      // the refresh token or prompt for sign-in when refresh really fails.
       throw error;
     }
   }
@@ -1177,48 +1187,64 @@ class SupabaseClient {
   }
 
   // Clean up old soft deleted notes (24+ hours old)
-  async cleanupOldDeletedNotes() {
+  async cleanupOldDeletedNotes({ force = false } = {}) {
     if (!this.isAuthenticated()) {
       // User not authenticated, skipping cleanup
-      return { cleaned: 0 };
+      return { cleaned: 0, noteIds: [] };
     }
 
-    try {
-      // Starting cleanup of old deleted notes
+    if (this._deletedNotesCleanupPromise) {
+      return this._deletedNotesCleanupPromise;
+    }
 
-      // Get notes that are deleted and older than 24 hours
-      const cutoffTime = new Date(Date.now() - 24 * 60 * 60 * 1000); // 24 hours ago
-      const cutoffISOString = cutoffTime.toISOString();
+    const runCleanup = async () => {
+      const userId = this.currentUser?.id;
+      if (!userId) return { cleaned: 0, noteIds: [] };
 
-      const query = `${this.apiUrl}/notes?user_id=eq.${this.currentUser.id}&is_deleted=eq.true&deleted_at=lt.${cutoffISOString}`;
+      const lastCleanupKey = `anchored_last_deleted_notes_cleanup_${userId}`;
+      const now = Date.now();
+      const oneDay = 24 * 60 * 60 * 1000;
+      const lastCleanupAt = Number(localStorage.getItem(lastCleanupKey) || 0);
+
+      // Automatic cleanup is a maintenance task, not something to query after
+      // every dashboard load. The manual button still bypasses this throttle.
+      if (!force && now - lastCleanupAt < oneDay) {
+        return { cleaned: 0, noteIds: [], skipped: true };
+      }
+
+      const cutoffISOString = new Date(now - oneDay).toISOString();
+      const query = `${this.apiUrl}/notes?select=id&user_id=eq.${userId}&is_deleted=eq.true&deleted_at=lt.${cutoffISOString}`;
       const oldDeletedNotes = await this._request(query, { auth: true });
+      const noteIds = (oldDeletedNotes || []).map(note => note.id).filter(Boolean);
 
-      if (!oldDeletedNotes || oldDeletedNotes.length === 0) {
-        // No old deleted notes found for cleanup
-        return { cleaned: 0 };
+      // Record completed empty runs too, otherwise users without deleted notes
+      // would pay for the same query on every page load.
+      if (noteIds.length === 0) {
+        localStorage.setItem(lastCleanupKey, String(now));
+        return { cleaned: 0, total: 0, noteIds };
       }
 
-      // Found old deleted notes to permanently delete
-
-      // Permanently delete these notes from the database
-      let cleanedCount = 0;
-      for (const note of oldDeletedNotes) {
-        try {
-          await this._request(`${this.apiUrl}/notes?id=eq.${note.id}`, {
-            method: 'DELETE',
-            auth: true
-          });
-          cleanedCount++;
-        } catch (error) {
-          // Failed to delete note
-        }
+      // Keep URLs comfortably below common request limits while replacing the
+      // former one-delete-request-per-note loop with batched deletes.
+      const batchSize = 100;
+      for (let index = 0; index < noteIds.length; index += batchSize) {
+        const batch = noteIds.slice(index, index + batchSize);
+        await this._request(`${this.apiUrl}/notes?id=in.(${batch.join(',')})&user_id=eq.${userId}`, {
+          method: 'DELETE',
+          headers: { Prefer: 'return=minimal' },
+          auth: true
+        });
       }
 
-      // Successfully cleaned up old deleted notes
-      return { cleaned: cleanedCount, total: oldDeletedNotes.length };
-    } catch (error) {
-      // Failed to cleanup old deleted notes
-      throw error;
+      localStorage.setItem(lastCleanupKey, String(now));
+      return { cleaned: noteIds.length, total: noteIds.length, noteIds };
+    };
+
+    this._deletedNotesCleanupPromise = runCleanup();
+    try {
+      return await this._deletedNotesCleanupPromise;
+    } finally {
+      this._deletedNotesCleanupPromise = null;
     }
   }
 

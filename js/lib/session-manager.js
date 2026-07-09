@@ -125,17 +125,7 @@ class SessionManager {
       return false;
     }
 
-    const now = Date.now();
-    const expiresAt = session.expires_at || 0;
-    
-    // Be more strict about token expiry to prevent JWT errors
-    if (this.isMobile) {
-      // For mobile, only allow 1 hour grace period to prevent JWT issues
-      return expiresAt > (now - 60 * 60 * 1000);
-    }
-    
-    // For desktop, allow 30 minute grace period
-    return expiresAt > (now - 30 * 60 * 1000);
+    return (session.expires_at || 0) > Date.now();
   }
 
   // Check if session needs refresh
@@ -144,19 +134,11 @@ class SessionManager {
 
     const now = Date.now();
     const expiresAt = session.expires_at || 0;
-    const lastActivity = session.last_activity || 0;
-
-    // Time until expiry
     const timeUntilExpiry = expiresAt - now;
-    
-    // Time since last activity
-    const timeSinceActivity = now - lastActivity;
 
-    // More aggressive refresh thresholds to prevent JWT errors
-    const refreshWindow = this.isMobile ? 2 * 60 * 60 * 1000 : 60 * 60 * 1000; // 2 hours mobile, 1 hour desktop
-    const activityThreshold = this.isMobile ? 24 * 60 * 60 * 1000 : 12 * 60 * 60 * 1000; // 24 hours mobile, 12 hours desktop
-
-    return timeUntilExpiry < refreshWindow || timeSinceActivity > activityThreshold;
+    // Refresh shortly before expiry. A refresh token, rather than a synthetic
+    // long-lived expiry, keeps a remembered login alive.
+    return timeUntilExpiry < 10 * 60 * 1000;
   }
 
   // Validate session and refresh if needed
@@ -209,17 +191,10 @@ class SessionManager {
         return refreshedSession;
       }
       
-      // Refresh failed
-      if (this.isMobile && this.isSessionValid(session)) {
-        // On mobile, if refresh fails but session is still valid, extend it slightly
-        const extendedSession = {
-          ...session,
-          expires_at: Date.now() + 60 * 60 * 1000, // Extend by 1 hour
-          last_activity: Date.now()
-        };
-        
-        this.setSession(extendedSession);
-        return extendedSession;
+      // Keep a still-valid JWT if a refresh transiently fails, but never
+      // invent a new expiry for it.
+      if (this.isSessionValid(session)) {
+        return session;
       }
       
       // Clear invalid session
@@ -227,9 +202,8 @@ class SessionManager {
       return null;
       
     } catch (e) {
-      // Refresh failed
-      if (this.isMobile && this.isSessionValid(session)) {
-        // On mobile, keep using session if it's still technically valid
+      // Keep using a token that is still genuinely valid.
+      if (this.isSessionValid(session)) {
         return session;
       }
       
@@ -255,21 +229,16 @@ class SessionManager {
     return !explicitlyDisabled;
   }
 
-  // Create session with appropriate expiry
+  // Create a session using Supabase's actual access-token expiry.
   createSession(authData) {
     const expiresIn = authData.expires_in || 3600;
-    
-    // Use long-lasting sessions like other modern websites (30 days default)
-    // This behaves like Gmail, GitHub, Facebook, etc. where you stay logged in for weeks
-    const sessionDuration = (this.isMobile || this.shouldRememberLogin()) ? 
-      30 * 24 * 60 * 60 * 1000 : // 30 days for mobile/remembered sessions
-      7 * 24 * 60 * 60 * 1000; // 7 days for desktop sessions
 
     const session = {
       access_token: authData.access_token,
       refresh_token: authData.refresh_token,
       user: authData.user,
-      expires_at: Date.now() + sessionDuration,
+      expires_at: Date.now() + (expiresIn * 1000),
+      expires_in: expiresIn,
       created_at: Date.now(),
       last_activity: Date.now(),
       is_mobile: this.isMobile
