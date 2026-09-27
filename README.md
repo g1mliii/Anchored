@@ -1,9 +1,30 @@
-# Anchored - Smart Note-Taking for the Web
+<p align="center">
+  <a href="https://anchored.site"><img src="anchore%20wout%20background%20512x512.png" width="112" height="112" alt="Anchored" /></a>
+</p>
+
+<h1 align="center">Anchored</h1>
+
+<p align="center">
+  <b>Notes and highlights that stay anchored to the page you took them on.</b><br />
+  Encrypted on your device, organized by site, and synced wherever you work.
+</p>
+
+<p align="center">
+  <a href="https://chromewebstore.google.com/detail/anchored-%E2%80%93-notes-highligh/llkmfidpbpfgdgjlohgpomdjckcfkllg"><img src="https://img.shields.io/badge/Chrome-Add_to_Chrome-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Add to Chrome" /></a>
+  <a href="https://microsoftedge.microsoft.com/addons/detail/anchored-%E2%80%93-notes-highli/kkilajkoeofmdjmnendnjfdgbhmhlmaf"><img src="https://img.shields.io/badge/Edge-Get_the_add--on-0C59A4?style=for-the-badge&logo=microsoftedge&logoColor=white" alt="Get it for Edge" /></a>
+  <a href="https://addons.mozilla.org/en-US/firefox/addon/anchored-notes/"><img src="https://img.shields.io/badge/Firefox-Get_the_add--on-FF7139?style=for-the-badge&logo=firefoxbrowser&logoColor=white" alt="Get it for Firefox" /></a>
+  <a href="https://anchored.site"><img src="https://img.shields.io/badge/Web_app-anchored.site-1B3A5C?style=for-the-badge&logo=googlechrome&logoColor=white" alt="anchored.site" /></a>
+</p>
+
+<p align="center">
+  <a href="https://chromewebstore.google.com/detail/anchored-%E2%80%93-notes-highligh/llkmfidpbpfgdgjlohgpomdjckcfkllg"><img src="https://img.shields.io/chrome-web-store/rating/llkmfidpbpfgdgjlohgpomdjckcfkllg?style=flat-square&label=Chrome%20Web%20Store&color=4285F4" alt="Chrome Web Store rating" /></a>
+  <img src="https://img.shields.io/badge/encryption-AES--256--GCM-1B3A5C?style=flat-square" alt="AES-256-GCM" />
+  <img src="https://img.shields.io/badge/Manifest-V3-1B3A5C?style=flat-square" alt="Manifest V3" />
+</p>
+
+---
 
 **Anchored** is a note-taking solution that lets you anchor your ideas to specific web locations. Available as both a browser extension and web application, it provides secure, encrypted note storage with intelligent organization and AI-powered features.
-
-**Live Web App**: [anchored.site](https://anchored.site)
-**Browser Extension**: [Chrome Web Store](https://chromewebstore.google.com/detail/anchored-%E2%80%93-notes-highligh/llkmfidpbpfgdgjlohgpomdjckcfkllg)
 
 ## What is Anchored?
 
@@ -21,7 +42,7 @@ Anchored represents the concept of anchoring your thoughts and insights to speci
 ## Getting Started
 
 ### Browser Extension
-1. [Install from Chrome Web Store](https://chromewebstore.google.com/detail/anchored-%E2%80%93-notes-highligh/llkmfidpbpfgdgjlohgpomdjckcfkllg)
+1. Install it for [Chrome](https://chromewebstore.google.com/detail/anchored-%E2%80%93-notes-highligh/llkmfidpbpfgdgjlohgpomdjckcfkllg), [Edge](https://microsoftedge.microsoft.com/addons/detail/anchored-%E2%80%93-notes-highli/kkilajkoeofmdjmnendnjfdgbhmhlmaf) or [Firefox](https://addons.mozilla.org/en-US/firefox/addon/anchored-notes/)
 2. Click the Anchored icon in your browser toolbar
 3. Start taking notes on any website
 4. Notes are automatically organized by domain/URL
@@ -97,10 +118,10 @@ Anchored represents the concept of anchoring your thoughts and insights to speci
 
 ## Browser Support
 
-- **Chrome** 90+ (Primary) - [Install](https://chromewebstore.google.com/detail/anchored-%E2%80%93-notes-highligh/llkmfidpbpfgdgjlohgpomdjckcfkllg)
-- **Brave** (Chromium-based) - Compatible with Chrome extension
-- **Microsoft Edge** 90+ (Chromium-based) - Compatible with Chrome extension
-- **Firefox** - Planned for future release
+- **Chrome** 90+ - [Chrome Web Store](https://chromewebstore.google.com/detail/anchored-%E2%80%93-notes-highligh/llkmfidpbpfgdgjlohgpomdjckcfkllg)
+- **Microsoft Edge** - [Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/anchored-%E2%80%93-notes-highli/kkilajkoeofmdjmnendnjfdgbhmhlmaf)
+- **Firefox** 109+ - [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/anchored-notes/)
+- **Brave** and other Chromium browsers - install from the Chrome Web Store
 
 ## Development
 
