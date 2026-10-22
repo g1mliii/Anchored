@@ -35,7 +35,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 24.13.0
+          node-version: 24.22.1
 
       - name: Check blocked package versions
         run: npm run security:deps
@@ -57,7 +57,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 24.13.0
+          node-version: 24.22.1
 
       - name: Audit lockfile
         working-directory: ${{ matrix.project }}
