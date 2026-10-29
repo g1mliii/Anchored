@@ -9,18 +9,14 @@
   Encrypted on your device, organized by site, and synced wherever you work.
 </p>
 
-<p align="center">
-  <a href="https://chromewebstore.google.com/detail/anchored-%E2%80%93-notes-highligh/llkmfidpbpfgdgjlohgpomdjckcfkllg"><img src="https://img.shields.io/badge/Chrome-Add_to_Chrome-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Add to Chrome" /></a>
-  <a href="https://microsoftedge.microsoft.com/addons/detail/anchored-%E2%80%93-notes-highli/kkilajkoeofmdjmnendnjfdgbhmhlmaf"><img src="https://img.shields.io/badge/Edge-Get_the_add--on-0C59A4?style=for-the-badge&logo=microsoftedge&logoColor=white" alt="Get it for Edge" /></a>
-  <a href="https://addons.mozilla.org/en-US/firefox/addon/anchored-notes/"><img src="https://img.shields.io/badge/Firefox-Get_the_add--on-FF7139?style=for-the-badge&logo=firefoxbrowser&logoColor=white" alt="Get it for Firefox" /></a>
-  <a href="https://anchored.site"><img src="https://img.shields.io/badge/Web_app-anchored.site-1B3A5C?style=for-the-badge&logo=googlechrome&logoColor=white" alt="anchored.site" /></a>
-</p>
-
-<p align="center">
-  <a href="https://chromewebstore.google.com/detail/anchored-%E2%80%93-notes-highligh/llkmfidpbpfgdgjlohgpomdjckcfkllg"><img src="https://img.shields.io/chrome-web-store/rating/llkmfidpbpfgdgjlohgpomdjckcfkllg?style=flat-square&label=Chrome%20Web%20Store&color=4285F4" alt="Chrome Web Store rating" /></a>
-  <img src="https://img.shields.io/badge/encryption-AES--256--GCM-1B3A5C?style=flat-square" alt="AES-256-GCM" />
-  <img src="https://img.shields.io/badge/Manifest-V3-1B3A5C?style=flat-square" alt="Manifest V3" />
-</p>
+> [!IMPORTANT]
+> **Anchored has been discontinued and is no longer maintained.**
+> The extension has been removed from the Chrome, Edge and Firefox stores, new accounts are closed,
+> and cloud sync will be switched off. This repository is kept read-only for reference.
+>
+> **Existing users:** export your notes from the extension (Settings → Export) or from the
+> [web dashboard](https://anchored.site/dashboard) while it is still online.
+> Questions: support@anchored.site
 
 ---
 
@@ -42,7 +38,7 @@ Anchored represents the concept of anchoring your thoughts and insights to speci
 ## Getting Started
 
 ### Browser Extension
-1. Install it for [Chrome](https://chromewebstore.google.com/detail/anchored-%E2%80%93-notes-highligh/llkmfidpbpfgdgjlohgpomdjckcfkllg), [Edge](https://microsoftedge.microsoft.com/addons/detail/anchored-%E2%80%93-notes-highli/kkilajkoeofmdjmnendnjfdgbhmhlmaf) or [Firefox](https://addons.mozilla.org/en-US/firefox/addon/anchored-notes/)
+1. Load the `/extension/` folder as an unpacked extension (the store listings are no longer available)
 2. Click the Anchored icon in your browser toolbar
 3. Start taking notes on any website
 4. Notes are automatically organized by domain/URL
@@ -118,10 +114,8 @@ Anchored represents the concept of anchoring your thoughts and insights to speci
 
 ## Browser Support
 
-- **Chrome** 90+ - [Chrome Web Store](https://chromewebstore.google.com/detail/anchored-%E2%80%93-notes-highligh/llkmfidpbpfgdgjlohgpomdjckcfkllg)
-- **Microsoft Edge** - [Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/anchored-%E2%80%93-notes-highli/kkilajkoeofmdjmnendnjfdgbhmhlmaf)
-- **Firefox** 109+ - [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/anchored-notes/)
-- **Brave** and other Chromium browsers - install from the Chrome Web Store
+- **Chrome** 90+, **Microsoft Edge**, **Brave** and other Chromium browsers - load `/extension/` (or `/extension-edge/`) unpacked
+- **Firefox** 109+ - load `/extension-firefox/` as a temporary add-on
 
 ## Development
 
