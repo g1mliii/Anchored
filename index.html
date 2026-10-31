@@ -24,10 +24,7 @@ privacy_policy_url: "https://anchored.site/privacy"
                 <h1>Anchored</h1>
             </div>
             <nav class="nav-links">
-                <a href="https://chromewebstore.google.com/detail/anchored-%E2%80%93-notes-highligh/llkmfidpbpfgdgjlohgpomdjckcfkllg"
-                    target="_blank" rel="noopener noreferrer" class="nav-link chrome-store-link">Get Extension</a>
                 <a href="#features" class="nav-link">Features</a>
-                <a href="#pricing" class="nav-link nav-desktop-only">Pricing</a>
                 <a href="https://anchored.site/privacy" class="nav-link nav-desktop-only">Privacy</a>
                 <a href="#" id="dashboardLink" class="nav-link">Dashboard</a>
             </nav>
@@ -54,19 +51,16 @@ privacy_policy_url: "https://anchored.site/privacy"
                     of Service</a>
             </div>
 
-            <!-- Chrome Web Store CTA (Desktop Only) -->
-            <div class="chrome-store-cta desktop-only" style="margin: 2.5rem 0; text-align: center;">
-                <a href="https://chromewebstore.google.com/detail/anchored-%E2%80%93-notes-highligh/llkmfidpbpfgdgjlohgpomdjckcfkllg"
-                    target="_blank" rel="noopener noreferrer" class="btn-primary"
-                    style="display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none; margin-bottom: 1rem;">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path
-                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-                    </svg>
-                    Get the Full Extension
-                </a>
-                <p style="color: var(--text-secondary); font-size: 0.875rem; margin: 0;">Available now on Chrome Web
-                    Store • This web app is for premium sync only</p>
+            <!-- Shutdown Notice -->
+            <div class="account-notice" style="margin: 2rem auto; max-width: 560px; text-align: left;">
+                <p><strong>Anchored is shutting down.</strong> The extension is no longer available to install,
+                    new accounts are closed, and the service is no longer maintained.</p>
+                <p style="margin-top: 0.75rem;">If you have an account, sign in below and use
+                    <strong>Export</strong> on the dashboard to download your notes. Notes stored only in the
+                    extension can be exported from the extension's settings. Cloud sync and this web app will be
+                    turned off after the wind-down period.</p>
+                <p style="margin-top: 0.75rem;">Questions? <a href="mailto:support@anchored.site"
+                        style="color: var(--accent-primary);">support@anchored.site</a></p>
             </div>
 
             <!-- Auth Forms Container -->
@@ -103,7 +97,6 @@ privacy_policy_url: "https://anchored.site/privacy"
                     </div>
 
                     <div class="auth-links">
-                        <a href="#" id="showRegister">Create Account</a>
                         <a href="#" id="showForgotPassword">Forgot Password?</a>
                     </div>
                     <div
@@ -210,60 +203,6 @@ privacy_policy_url: "https://anchored.site/privacy"
         </div>
     </section>
 
-    <!-- Pricing Section -->
-    <section id="pricing" class="features-section">
-        <div class="features-content">
-            <h2>Simple Pricing</h2>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <h3>Free</h3>
-                    <p><strong>$0/month</strong></p>
-                    <ul style="text-align: left; margin-top: 1rem;">
-                        <li>Browser extension access</li>
-                        <li>Local note storage</li>
-                        <li>Domain & page organization</li>
-                        <li>Multi-highlight mode</li>
-                        <li>Context menu quick add</li>
-                        <li>Rich text formatting</li>
-                        <li>Tags and search</li>
-                        <li>Keyboard shortcuts</li>
-                        <li>Theme customization</li>
-                        <li>Font size adjustment</li>
-                        <li>Export functionality</li>
-                        <li>AI features (30 tokens/month)</li>
-                    </ul>
-                </div>
-                <div class="feature-card" style="border: 2px solid var(--accent-primary);">
-                    <h3>Premium</h3>
-                    <p><strong>$2.50/month</strong></p>
-                    <ul style="text-align: left; margin-top: 1rem;">
-                        <li>Everything in Free</li>
-                        <li>Cloud synchronization</li>
-                        <li>Web application access</li>
-                        <li>Advanced search (All Notes)</li>
-                        <li>AI Rewrite (1 token per note)</li>
-                        <li>AI Summary (20 uses per site)</li>
-                        <li>AI Domain Summary (1 use per note)</li>
-                        <li>500 AI tokens total/month</li>
-                        <li>All export formats</li>
-                        <li>Import functionality</li>
-                        <li>Ad-free experience</li>
-                    </ul>
-                </div>
-                <div class="feature-card">
-                    <h3>Enterprise</h3>
-                    <p><strong>Coming Soon</strong></p>
-                    <ul style="text-align: left; margin-top: 1rem;">
-                        <li>Team collaboration</li>
-                        <li>Admin dashboard</li>
-                        <li>SSO integration</li>
-                        <li>Priority support</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </section>
-
     <!-- Footer -->
     <footer class="site-footer">
         <div class="container">
@@ -276,17 +215,6 @@ privacy_policy_url: "https://anchored.site/privacy"
                 </div>
                 <div class="footer-text">
                     <p>&copy; 2025 Anchored. All rights reserved.</p>
-                </div>
-                <!-- PayPal Donation in Footer -->
-                <div class="footer-donation">
-                    <form action="https://www.paypal.com/donate" method="post" target="_top" class="footer-paypal-form">
-                        <input type="hidden" name="hosted_button_id" value="MY59EPX5WVVQU" />
-                        <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif"
-                            border="0" name="submit" title="Support Anchored development"
-                            alt="Donate with PayPal button" style="height: 32px; width: auto;" />
-                        <img alt="" border="0" src="https://www.paypal.com/en_CA/i/scr/pixel.gif" width="1"
-                            height="1" />
-                    </form>
                 </div>
             </div>
         </div>

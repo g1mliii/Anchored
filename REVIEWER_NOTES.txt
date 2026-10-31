@@ -55,7 +55,3 @@ CONTACT
 Developer: Anchored Team
 Email: support@anchored.site
 Website: https://anchored.site
-
-MAINTENANCE
------------
-Last activity check: 2026-09-01
