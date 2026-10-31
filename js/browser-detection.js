@@ -10,9 +10,8 @@
     // Extension store URLs
     STORE_URLS: {
       chrome: 'https://chromewebstore.google.com/detail/anchored-%E2%80%93-notes-highligh/llkmfidpbpfgdgjlohgpomdjckcfkllg',
-      firefox: 'https://addons.mozilla.org/en-US/firefox/addon/anchored-notes/',
-      edge: 'https://microsoftedge.microsoft.com/addons/detail/anchored-%E2%80%93-notes-highli/kkilajkoeofmdjmnendnjfdgbhmhlmaf',
-      safari: null // Coming soon
+      firefox: null, // Discontinued
+      safari: null // Not available
     },
 
     /**
@@ -133,16 +132,14 @@
         case 'chrome':
         case 'opera':
         case 'brave':
+        case 'edge':
           return this.STORE_URLS.chrome; // Chrome Web Store works for Chromium browsers
 
         case 'firefox':
-          return this.STORE_URLS.firefox;
-
-        case 'edge':
-          return this.STORE_URLS.edge;
+          return this.STORE_URLS.firefox; // null - discontinued
 
         case 'safari':
-          return this.STORE_URLS.safari; // null - coming soon
+          return this.STORE_URLS.safari; // null - not available
 
         default:
           return this.STORE_URLS.chrome; // Fallback to Chrome Web Store
@@ -160,7 +157,7 @@
       if (browser.isMobile) {
         return {
           title: 'Desktop Only',
-          description: 'Browser extensions are not available on mobile devices. Please visit this page on a desktop browser (Chrome, Firefox, or Edge) to install Anchored.',
+          description: 'Browser extensions are not available on mobile devices. Please visit this page on a desktop Chromium browser (Chrome, Edge or Brave) to install Anchored.',
           available: false
         };
       }
@@ -175,15 +172,15 @@
 
         case 'firefox':
           return {
-            title: 'Get Anchored for Firefox',
-            description: 'Install from Firefox Add-ons',
-            available: true
+            title: 'Not Available for Firefox',
+            description: 'Anchored is only available for Chromium browsers (Chrome, Edge or Brave). Please visit this page in one of those to install it.',
+            available: false
           };
 
         case 'edge':
           return {
             title: 'Get Anchored for Edge',
-            description: 'Install from Edge Add-ons',
+            description: 'Install from Chrome Web Store (compatible with Edge)',
             available: true
           };
 
@@ -233,7 +230,7 @@
             }
           }
         } else {
-          // Mobile or Safari - disable link and show message
+          // Mobile, Firefox or Safari - disable link and show message
           link.href = '#';
           link.style.cursor = 'not-allowed';
           link.style.opacity = '0.6';
@@ -260,12 +257,7 @@
           ctaDescription.innerHTML = `<strong>Not available on mobile</strong> • Please use a desktop browser to install the extension`;
           ctaDescription.style.color = 'var(--accent-primary)';
         } else if (message.available) {
-          const browserName = browser.displayName;
-          const storeName = browser.name === 'firefox' ? 'Firefox Add-ons' :
-            browser.name === 'edge' ? 'Edge Add-ons' :
-              'Chrome Web Store';
-
-          ctaDescription.innerHTML = `Available now on ${storeName} • This web app is for premium sync only`;
+          ctaDescription.innerHTML = `Available now on Chrome Web Store • This web app is for premium sync only`;
         }
       }
 

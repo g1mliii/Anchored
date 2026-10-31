@@ -1,0 +1,23 @@
+name: Daily Subscription Sync
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  sync-subscriptions:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Sync Subscription Status
+        run: |
+          curl -X POST \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+            https://kqjcorjjvunmyrnzvqgr.supabase.co/functions/v1/sync-all-subscriptions \
+            -d '{}'
+        
+      - name: Log Result
+        run: echo "Subscription sync completed at $(date)"

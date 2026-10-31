@@ -6,9 +6,6 @@ on:
       - "package.json"
       - "package-lock.json"
       - "npm-shrinkwrap.json"
-      - "extension-firefox/package.json"
-      - "extension-firefox/package-lock.json"
-      - "extension-firefox/npm-shrinkwrap.json"
       - "scripts/check-banned-packages.js"
       - ".github/dependabot.yml"
       - ".github/workflows/dependency-safety.yml"
@@ -19,9 +16,6 @@ on:
       - "package.json"
       - "package-lock.json"
       - "npm-shrinkwrap.json"
-      - "extension-firefox/package.json"
-      - "extension-firefox/package-lock.json"
-      - "extension-firefox/npm-shrinkwrap.json"
       - "scripts/check-banned-packages.js"
       - ".github/dependabot.yml"
       - ".github/workflows/dependency-safety.yml"
@@ -40,18 +34,8 @@ jobs:
       - name: Check blocked package versions
         run: npm run security:deps
 
-      - name: Check blocked package versions for Firefox extension
-        working-directory: extension-firefox
-        run: npm run security:deps
-
   audit:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        project:
-          - "."
-          - "extension-firefox"
     steps:
       - uses: actions/checkout@v4
 
@@ -60,5 +44,4 @@ jobs:
           node-version: 24.22.1
 
       - name: Audit lockfile
-        working-directory: ${{ matrix.project }}
         run: npm run security:audit
